@@ -416,20 +416,27 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
+			// 1.根据指定包名 生成包搜索路径
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
+			// 2. 资源加载器 加载搜索路径下的 所有class 转换为 Resource[]
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
+			// 3. 循环 处理每一个 resource
 			for (Resource resource : resources) {
 				if (traceEnabled) {
 					logger.trace("Scanning " + resource);
 				}
 				try {
+					// 读取类的 注解信息 和 类信息 ，信息储存到  MetadataReader
 					MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
+					// 执行判断是否符合 过滤器规则，函数内部用过滤器 对metadataReader 过滤
 					if (isCandidateComponent(metadataReader)) {
+						//把符合条件的 类转换成 BeanDefinition
 						ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 						sbd.setSource(resource);
+						// 再次判断 如果是实体类 返回true,如果是抽象类，但是抽象方法 被 @Lookup 注解注释返回true
 						if (isCandidateComponent(sbd)) {
 							if (debugEnabled) {
 								logger.debug("Identified candidate component class: " + resource);

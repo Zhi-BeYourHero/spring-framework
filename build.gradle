@@ -248,6 +248,8 @@ configure(allprojects) { project ->
 			cacheChangingModulesFor 0, "seconds"
 		}
 		repositories {
+//			因为Gradle支持Maven依赖， 所以我们可以使用阿里云的Maven镜像
+//			maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
 			mavenCentral()
 			maven { url "https://repo.spring.io/libs-spring-framework-build" }
 		}
