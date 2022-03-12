@@ -134,6 +134,7 @@ public interface HandlerMapping {
 	 * @return a HandlerExecutionChain instance containing handler object and
 	 * any interceptors, or {@code null} if no mapping found
 	 * @throws Exception if there is an internal error
+	 * 获取对应的处理器和拦截器类
 	 */
 	@Nullable
 	HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception;

@@ -306,7 +306,7 @@ public class HandlerMethodMappingTests {
 	@Controller
 	static class MyHandler {
 
-		@RequestMapping
+		@RequestMapping("test")
 		public void handlerMethod1() {
 		}
 

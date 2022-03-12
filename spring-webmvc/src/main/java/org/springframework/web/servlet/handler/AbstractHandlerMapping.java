@@ -73,15 +73,37 @@ import org.springframework.web.util.UrlPathHelper;
 public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		implements HandlerMapping, Ordered, BeanNameAware {
 
+	/**
+	 * 默认处理器，在获取不到处理器时可使用该属性
+	 */
 	@Nullable
 	private Object defaultHandler;
 
+	/**
+	 * URL 路径工具类
+	 */
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
+	/**
+	 * 路径匹配器
+	 */
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
+	/**
+	 * 配置的拦截器数组.
+	 *
+	 * 在 {@link #initInterceptors()} 方法中，初始化到 {@link #adaptedInterceptors} 中
+	 *
+	 * 添加方式有两种：
+	 *
+	 * 1. {@link #setInterceptors(Object...)} 方法
+	 * 2. {@link #extendInterceptors(List)} 方法
+	 */
 	private final List<Object> interceptors = new ArrayList<>();
 
+	/**
+	 * 初始化后的拦截器HandlerInterceptor数组
+	 */
 	private final List<HandlerInterceptor> adaptedInterceptors = new ArrayList<>();
 
 	private CorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
@@ -292,8 +314,11 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 */
 	@Override
 	protected void initApplicationContext() throws BeansException {
+		// <1> 空方法。交给子类实现，用于注册自定义的拦截器到interceptors中，目前暂无子类实现
 		extendInterceptors(this.interceptors);
+		// <2> 扫描已经注册的MappedInterceptor的Bean们，添加到adaptedInterceptors中
 		detectMappedInterceptors(this.adaptedInterceptors);
+		// <3> 将interceptors 初始化成 HandlerInterceptor 类型， 添加到 mappedInterceptor 中
 		initInterceptors();
 	}
 
@@ -319,6 +344,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * @param mappedInterceptors an empty list to add to
 	 */
 	protected void detectMappedInterceptors(List<HandlerInterceptor> mappedInterceptors) {
+		// MappedInterceptor 会根据请求路径做匹配， 是否进行拦截
 		mappedInterceptors.addAll(BeanFactoryUtils.beansOfTypeIncludingAncestors(
 				obtainApplicationContext(), MappedInterceptor.class, true, false).values());
 	}

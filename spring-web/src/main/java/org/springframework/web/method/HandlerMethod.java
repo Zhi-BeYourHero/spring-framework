@@ -72,20 +72,41 @@ public class HandlerMethod {
 	private final Class<?> beanType;
 
 	private final Method method;
-
+	/**
+	 * {@link #method} 的桥接方法
+	 *
+	 * 详细说明
+	 *
+	 * 1. https://www.jianshu.com/p/250030ea9b28
+	 * 2. https://blog.csdn.net/mhmyqn/article/details/47342577
+	 */
 	private final Method bridgedMethod;
 
 	private final MethodParameter[] parameters;
 
+	/**
+	 * 响应的状态码，即 {@link ResponseStatus#code()}
+	 */
 	@Nullable
 	private HttpStatus responseStatus;
 
+	/**
+	 * 响应的状态码原因，即 {@link ResponseStatus#reason()}
+	 */
 	@Nullable
 	private String responseStatusReason;
 
+	/**
+	 * 解析自哪个 HandlerMethod 对象
+	 *
+	 * 仅构造方法中传入 HandlerMethod 类型的参数适用，例如 {@link #HandlerMethod(HandlerMethod)}
+	 */
 	@Nullable
 	private HandlerMethod resolvedFromHandlerMethod;
 
+	/**
+	 * 父接口的方法的参数注解数组
+	 */
 	@Nullable
 	private volatile List<Annotation[][]> interfaceParameterAnnotations;
 
