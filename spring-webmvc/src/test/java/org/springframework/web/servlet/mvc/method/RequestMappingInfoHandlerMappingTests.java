@@ -522,7 +522,8 @@ public class RequestMappingInfoHandlerMappingTests {
 	}
 
 
-	private static class TestRequestMappingInfoHandlerMapping extends RequestMappingInfoHandlerMapping {
+	private static class
+	TestRequestMappingInfoHandlerMapping extends RequestMappingInfoHandlerMapping {
 
 		public void registerHandler(Object handler) {
 			super.detectHandlerMethods(handler);
