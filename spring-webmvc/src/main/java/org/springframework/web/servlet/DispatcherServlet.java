@@ -676,6 +676,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	private void initHandlerExceptionResolvers(ApplicationContext context) {
 		this.handlerExceptionResolvers = null;
 
+		// 情况一，自动扫描 HandlerExceptionResolver 类型的 Bean 们
+		// 默认情况下为true, 在默认配置的SpringBoot场景下， handlerExceptionResolvers的结果是：
+		// 1. org.springframework.boot.autoconfigure.web.DefaultErrorAttributes
+		// 2. HandlerExceptionResolverComposite，所以，我们可以先忽略掉 SpringBoot 中实现的 DefaultErrorAttributes 类，而来到 HandlerExceptionResolverComposite 中。
 		if (this.detectAllHandlerExceptionResolvers) {
 			// Find all HandlerExceptionResolvers in the ApplicationContext, including ancestor contexts.
 			Map<String, HandlerExceptionResolver> matchingBeans = BeanFactoryUtils
@@ -686,6 +690,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				AnnotationAwareOrderComparator.sort(this.handlerExceptionResolvers);
 			}
 		}
+		// 情况二， 获取名字为 HANDLER_EXCEPTION_RESOLVER_BEAN_NAME 的 Bean
 		else {
 			try {
 				HandlerExceptionResolver her =
@@ -699,6 +704,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Ensure we have at least some HandlerExceptionResolvers, by registering
 		// default HandlerExceptionResolvers if no other resolvers are found.
+		// 情况三， 如果未获得到 HandlerExceptionResolver 类型的解析器， 则去获取默认的
 		if (this.handlerExceptionResolvers == null) {
 			this.handlerExceptionResolvers = getDefaultStrategies(context, HandlerExceptionResolver.class);
 			if (logger.isTraceEnabled()) {

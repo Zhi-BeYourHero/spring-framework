@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
 
 /**
  * Comparator capable of sorting exceptions based on their depth from the thrown exception type.
- *
+ * 大体的逻辑是，比较它们和目标类的继承层级，越小越匹配。
  * @author Juergen Hoeller
  * @author Arjen Poutsma
  * @since 3.0.3
