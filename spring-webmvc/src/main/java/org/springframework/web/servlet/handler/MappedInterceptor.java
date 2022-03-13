@@ -43,15 +43,23 @@ import org.springframework.web.servlet.ModelAndView;
  * @since 3.0
  */
 public final class MappedInterceptor implements HandlerInterceptor {
-
+	/**
+	 * 匹配的路径
+	 */
 	@Nullable
 	private final String[] includePatterns;
-
+	/**
+	 * 不匹配的路径
+	 */
 	@Nullable
 	private final String[] excludePatterns;
-
+	/**
+	 * HandlerInterceptor 拦截器对象
+	 */
 	private final HandlerInterceptor interceptor;
-
+	/**
+	 * 路径匹配器
+	 */
 	@Nullable
 	private PathMatcher pathMatcher;
 

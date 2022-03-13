@@ -558,10 +558,14 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see #setContextConfigLocation
 	 */
 	protected WebApplicationContext initWebApplicationContext() {
+		// <1> 获得根 WebApplicationContext 对象
 		WebApplicationContext rootContext =
 				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+
+		// <2> 获得 WebApplicationContext wac 变量
 		WebApplicationContext wac = null;
 
+		// 第一种情况，如果构造方法已经传入 webApplicationContext 属性，则直接使用
 		if (this.webApplicationContext != null) {
 			// A context instance was injected at construction time -> use it
 			wac = this.webApplicationContext;

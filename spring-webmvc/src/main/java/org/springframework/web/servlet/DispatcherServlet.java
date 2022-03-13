@@ -908,10 +908,13 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// <1> 打印请求日志，并且日志级别为 DEBUG
 		logRequest(request);
 
 		// Keep a snapshot of the request attributes in case of an include,
 		// to be able to restore the original attributes after the include.
+
+		// <2> TODO 芋艿
 		Map<String, Object> attributesSnapshot = null;
 		if (WebUtils.isIncludeRequest(request)) {
 			attributesSnapshot = new HashMap<>();
@@ -925,11 +928,13 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		// Make framework objects available to handlers and view objects.
+		// <3> 设置 Spring 框架中的常用对象到 request 属性中
 		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
 		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);
 		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);
 		request.setAttribute(THEME_SOURCE_ATTRIBUTE, getThemeSource());
 
+		// <4> TODO 芋艿 flashMapManager
 		if (this.flashMapManager != null) {
 			FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(request, response);
 			if (inputFlashMap != null) {
@@ -940,9 +945,11 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		try {
+			// <5> 执行请求的分发
 			doDispatch(request, response);
 		}
 		finally {
+			// <6> TODO 芋艿
 			if (!WebAsyncUtils.getAsyncManager(request).isConcurrentHandlingStarted()) {
 				// Restore the original attribute snapshot, in case of an include.
 				if (attributesSnapshot != null) {
@@ -1001,7 +1008,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		HttpServletRequest processedRequest = request;
 		HandlerExecutionChain mappedHandler = null;
 		boolean multipartRequestParsed = false;
-
+		// <1> TODO 芋艿
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
 		try {
@@ -1009,20 +1016,25 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				// <2> 调用 #checkMultipart(HttpServletRequest request) 方法，检查是否是上传请求。如果是，则封装成 MultipartHttpServletRequest 对象。
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
-
+				//<3> 获得请求对应的 HandlerExecutionChain 对象
 				// Determine handler for the current request.
 				mappedHandler = getHandler(processedRequest);
+
+				// <3.1> 如果获取不到，则根据配置抛出异常或返回 404 错误
 				if (mappedHandler == null) {
 					noHandlerFound(processedRequest, response);
 					return;
 				}
 
+				// <4> 获得当前 handler 对应的 HandlerAdapter 对象
 				// Determine handler adapter for the current request.
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
+				// <4.1> TODO 芋艿 last-modified
 				String method = request.getMethod();
 				boolean isGet = "GET".equals(method);
 				if (isGet || "HEAD".equals(method)) {
@@ -1032,38 +1044,48 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				// <5> 前置处理 拦截器
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
 				// Actually invoke the handler.
+				// <6> 真正的调用 handler 方法，并返回视图,这里，一般就会调用我们定义的 Controller 的方法。详细解析，见 TODO 。
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
+				// <7> TODO 芋艿
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
 
+				// <8> TODO 芋艿 视图
 				applyDefaultViewName(processedRequest, mv);
+
+				// <9> 后置处理 拦截器
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
-				dispatchException = ex;
+				dispatchException = ex;// <10> 记录异常
 			}
 			catch (Throwable err) {
 				// As of 4.3, we're processing Errors thrown from handler methods as well,
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
+			// <11> 处理正常和异常的请求调用结果。
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
+			// <12> 已完成 拦截器
 			triggerAfterCompletion(processedRequest, response, mappedHandler, ex);
 		}
 		catch (Throwable err) {
+			// <12> 已完成 拦截器
 			triggerAfterCompletion(processedRequest, response, mappedHandler,
 					new NestedServletException("Handler processing failed", err));
 		}
 		finally {
+			// <13.1> TODO 芋艿，干啥子？
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				// Instead of postHandle and afterCompletion
 				if (mappedHandler != null) {
@@ -1098,24 +1120,30 @@ public class DispatcherServlet extends FrameworkServlet {
 	private void processDispatchResult(HttpServletRequest request, HttpServletResponse response,
 			@Nullable HandlerExecutionChain mappedHandler, @Nullable ModelAndView mv,
 			@Nullable Exception exception) throws Exception {
-
+		// <1> 标记，是否是生成的 ModelAndView 对象
 		boolean errorView = false;
 
+		// <2> 如果是否异常的结果
 		if (exception != null) {
+			// 情况一，从 ModelAndViewDefiningException 中获得 ModelAndView 对象
 			if (exception instanceof ModelAndViewDefiningException) {
 				logger.debug("ModelAndViewDefiningException encountered", exception);
 				mv = ((ModelAndViewDefiningException) exception).getModelAndView();
 			}
+			// 情况二，处理异常，生成 ModelAndView 对象
 			else {
 				Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
 				mv = processHandlerException(request, response, handler, exception);
+				// 标记 errorView
 				errorView = (mv != null);
 			}
 		}
 
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
+			// <3.1> 渲染页面
 			render(mv, request, response);
+			// <3.2> 清理请求中的错误消息属性
 			if (errorView) {
 				WebUtils.clearErrorRequestAttributes(request);
 			}
@@ -1126,11 +1154,13 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		// <4> TODO 芋艿
 		if (WebAsyncUtils.getAsyncManager(request).isConcurrentHandlingStarted()) {
 			// Concurrent handling started during a forward
 			return;
 		}
 
+		// <5> 已完成处理 拦截器
 		if (mappedHandler != null) {
 			mappedHandler.triggerAfterCompletion(request, response, null);
 		}
@@ -1290,11 +1320,14 @@ public class DispatcherServlet extends FrameworkServlet {
 			@Nullable Object handler, Exception ex) throws Exception {
 
 		// Success and error responses may use different content types
+		// 移除 PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE 属性
 		request.removeAttribute(HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
 
 		// Check registered HandlerExceptionResolvers...
+		// <a> 遍历 HandlerExceptionResolver 数组，解析异常，生成 ModelAndView 对象
 		ModelAndView exMv = null;
 		if (this.handlerExceptionResolvers != null) {
+			// 遍历 HandlerExceptionResolver 数组
 			for (HandlerExceptionResolver resolver : this.handlerExceptionResolvers) {
 				exMv = resolver.resolveException(request, response, handler, ex);
 				if (exMv != null) {
