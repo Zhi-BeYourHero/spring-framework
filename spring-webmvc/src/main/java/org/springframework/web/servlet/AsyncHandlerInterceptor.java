@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.method.HandlerMethod;
 
 /**
+ * 继承HandlerInterceptor接口， 额外提供afterConcurrentHandlingStarted方法，
  * Extends {@code HandlerInterceptor} with a callback method invoked after the
  * start of asynchronous request handling.
  *
@@ -60,6 +61,8 @@ import org.springframework.web.method.HandlerMethod;
 public interface AsyncHandlerInterceptor extends HandlerInterceptor {
 
 	/**
+	 * 该方法是用来处理异步请求。当Controller中有异步请求方法的时候就会触发该方法。
+	 * 异步请求先支持preHandle、然后执行afterConcurrentHandlingStarted。异步线程完成之后执行preHandle、postHandle、afterCompletion。
 	 * Called instead of {@code postHandle} and {@code afterCompletion}
 	 * when the handler is being executed concurrently.
 	 * <p>Implementations may use the provided request and response but should

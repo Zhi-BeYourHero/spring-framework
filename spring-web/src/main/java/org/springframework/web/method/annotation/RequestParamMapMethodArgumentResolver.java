@@ -39,8 +39,19 @@ import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.multipart.support.MultipartResolutionDelegate;
 
 /**
+ * 处理带有 @RequestParam 注解，
+ * 但是注解上无 name 属性的 Map 类型的参数的 RequestParamMethodArgumentResolver 实现类。
  * Resolves {@link Map} method arguments annotated with an @{@link RequestParam}
  * where the annotation does not specify a request parameter name.
+ *
+ * 对于 RequestParamMapMethodArgumentResolver 类，它的效果是，将所有参数添加到 Map 集合中。
+ * // Controller.java
+ *
+ * @RequestMapping("/hello4")
+ * public String hello4(@RequestParam Map<String, Object> map) {
+ *     return "666";
+ * }
+ * GET /hello4?name=yyy&age=20 的 name 和 age 参数，就会都添加到 map 中。
  *
  * <p>The created {@link Map} contains all request parameter name/value pairs,
  * or all multipart files for a given parameter name if specifically declared
@@ -73,6 +84,7 @@ public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgum
 
 		ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
 
+		// MultiValueMap 类型的处理
 		if (MultiValueMap.class.isAssignableFrom(parameter.getParameterType())) {
 			// MultiValueMap
 			Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
@@ -93,6 +105,7 @@ public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgum
 				return new LinkedMultiValueMap<>(0);
 			}
 			else {
+				// 获得请求的参数集合
 				Map<String, String[]> parameterMap = webRequest.getParameterMap();
 				MultiValueMap<String, String> result = new LinkedMultiValueMap<>(parameterMap.size());
 				parameterMap.forEach((key, values) -> {
@@ -103,7 +116,6 @@ public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgum
 				return result;
 			}
 		}
-
 		else {
 			// Regular Map
 			Class<?> valueType = resolvableType.asMap().getGeneric(1).resolve();
@@ -125,6 +137,7 @@ public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgum
 				}
 				return new LinkedHashMap<>(0);
 			}
+			// 普通 Map 类型的处理
 			else {
 				Map<String, String[]> parameterMap = webRequest.getParameterMap();
 				Map<String, String> result = new LinkedHashMap<>(parameterMap.size());

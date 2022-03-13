@@ -652,6 +652,11 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	/**
 	 * Return the list of argument resolvers to use including built-in resolvers
 	 * and custom resolvers provided via {@link #setCustomArgumentResolvers}.
+	 * 可以看到有两个 RequestParamMethodArgumentResolver 对象，前者 useDefaultResolution 为 false ，
+	 * 后者为 useDefaultResolution 为 true 。什么意思呢？
+	 * 优先将待有 @RequestParam 注解的请求参数给第一个 RequestParamMethodArgumentResolver 对象；
+	 * 其次，给中间省略的一大片参数解析器试试能不能解析；
+	 * 最后，使用第二个 RequestParamMethodArgumentResolver 兜底，处理剩余的情况。
 	 */
 	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>(30);

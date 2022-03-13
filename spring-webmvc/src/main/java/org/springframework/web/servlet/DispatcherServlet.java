@@ -1026,7 +1026,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// <2> 调用 #checkMultipart(HttpServletRequest request) 方法，检查是否是上传请求。如果是，则封装成 MultipartHttpServletRequest 对象。
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
-				//<3> 获得请求对应的 HandlerExecutionChain 对象
+				//<3> 获得请求对应的 HandlerExecutionChain 对象, 这个对象包括HandlerMethod和Interceptors集合
 				// Determine handler for the current request.
 				mappedHandler = getHandler(processedRequest);
 
@@ -1036,7 +1036,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
-				// <4> 获得当前 handler 对应的 HandlerAdapter 对象
+				// <4> 获得当前 handler即HandlerMethod 对应的 HandlerAdapter 对象
 				// Determine handler adapter for the current request.
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 

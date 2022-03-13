@@ -46,6 +46,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 /**
+ * 继承 AbstractMessageConverterMethodProcessor 抽象类，
+ * 处理请求参数添加了 @RequestBody 注解，或者返回值添加了 @ResponseBody 注解的处理。
+ *
  * Resolves method arguments annotated with {@code @RequestBody} and handles return
  * values from methods annotated with {@code @ResponseBody} by reading and writing
  * to the body of the request or response with an {@link HttpMessageConverter}.
@@ -98,6 +101,10 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	/**
 	 * Complete constructor for resolving {@code @RequestBody} and handling
 	 * {@code @ResponseBody}.
+	 * {@param converters}converters 参数，HttpMessageConverter 数组。关于 HttpMessageConverter ，可以说我们非常熟悉的朋友了。
+	 * 例如，我们想要将 POJO 对象，返回成 JSON 数据给前端，就会使用到 MappingJackson2HttpMessageConverter 类。
+	 * {@param requestResponseBodyAdvice}requestResponseBodyAdvice 参数，
+	 * 一般情况是 ResponseBodyAdvice 类型，可实现对返回结果的修改。
 	 */
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
 			@Nullable ContentNegotiationManager manager, @Nullable List<Object> requestResponseBodyAdvice) {
@@ -172,12 +179,15 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
 			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
-
+		// <1> 设置已处理
 		mavContainer.setRequestHandled(true);
+
+		// <2> 创建请求和响应
 		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
 		ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
 
 		// Try even with null return value. ResponseBodyAdvice could get involved.
+		// <3> 使用 HttpMessageConverter 对对象进行转换，并写入到响应
 		writeWithMessageConverters(returnValue, returnType, inputMessage, outputMessage);
 	}
 

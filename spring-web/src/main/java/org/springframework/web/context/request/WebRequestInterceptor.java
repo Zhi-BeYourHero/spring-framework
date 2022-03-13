@@ -20,6 +20,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.ui.ModelMap;
 
 /**
+ * 与HandlerInterceptor类似， 区别是WebRequestInterceptor的preHandle没有返回值
+ * 还有就是WebRequestInterceptor是针对请求的，接口方法参数中没有response
  * Interface for general web request interception. Allows for being applied
  * to Servlet request by building on the {@link WebRequest} abstraction.
  *

@@ -52,6 +52,7 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 			pathMatcherRef = new RuntimeBeanReference(element.getAttribute("path-matcher"));
 		}
 
+		// 找到interceptor子标签， 开始遍历
 		List<Element> interceptors = DomUtils.getChildElementsByTagName(element, "bean", "ref", "interceptor");
 		for (Element interceptor : interceptors) {
 			RootBeanDefinition mappedInterceptorDef = new RootBeanDefinition(MappedInterceptor.class);
@@ -61,6 +62,8 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 			ManagedList<String> includePatterns = null;
 			ManagedList<String> excludePatterns = null;
 			Object interceptorBean;
+
+			// 找到interceptor标签的子标签mapping, exclude-mapping和bean
 			if ("interceptor".equals(interceptor.getLocalName())) {
 				includePatterns = getIncludePatterns(interceptor, "mapping");
 				excludePatterns = getIncludePatterns(interceptor, "exclude-mapping");
@@ -70,6 +73,8 @@ class InterceptorsBeanDefinitionParser implements BeanDefinitionParser {
 			else {
 				interceptorBean = context.getDelegate().parsePropertySubElement(interceptor, null);
 			}
+
+			// 构造MappedInterceptor， 以参数includePatterns, excludePatterns, interceptorBean对应的构造参数构造
 			mappedInterceptorDef.getConstructorArgumentValues().addIndexedArgumentValue(0, includePatterns);
 			mappedInterceptorDef.getConstructorArgumentValues().addIndexedArgumentValue(1, excludePatterns);
 			mappedInterceptorDef.getConstructorArgumentValues().addIndexedArgumentValue(2, interceptorBean);

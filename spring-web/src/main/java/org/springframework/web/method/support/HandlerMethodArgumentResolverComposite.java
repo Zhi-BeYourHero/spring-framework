@@ -44,8 +44,16 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 	@Deprecated
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * HandlerMethodArgumentResolver 数组，这就是 Composite 复合~
+	 * HandlerMethodArgumentResolverComposite 默认复合的所有 HandlerMethodArgumentResolver 对象
+	 */
 	private final List<HandlerMethodArgumentResolver> argumentResolvers = new LinkedList<>();
 
+	/**
+	 * MethodParameter 与 HandlerMethodArgumentResolver 的映射，作为缓存。
+	 * 因为，MethodParameter 是需要从 argumentResolvers 遍历到适合其的解析器，通过缓存后，无需再次重复遍历。
+	 */
 	private final Map<MethodParameter, HandlerMethodArgumentResolver> argumentResolverCache =
 			new ConcurrentHashMap<>(256);
 

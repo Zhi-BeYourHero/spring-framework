@@ -51,6 +51,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.UrlPathHelper;
 
 /**
+ * HandlerMapping的抽象基础类
  * Abstract base class for {@link org.springframework.web.servlet.HandlerMapping}
  * implementations. Supports ordering, a default handler, handler interceptors,
  * including handler interceptors mapped by path patterns.
@@ -91,7 +92,8 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 
 	/**
 	 * 配置的拦截器数组.
-	 *
+	 * AbstractHandlerMapping抽象类只暴露了1个拦截器的set方法，即interceptors的
+	 * 而adaptedInterceptor和mappedInterceptors均没有暴露set方法，所以外面只能为RequestMappingHandlerMapping配置interceptors属性
 	 * 在 {@link #initInterceptors()} 方法中，初始化到 {@link #adaptedInterceptors} 中
 	 *
 	 * 添加方式有两种：
@@ -103,6 +105,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 
 	/**
 	 * 初始化后的拦截器HandlerInterceptor数组
+	 * HandlerInterceptor、WebRequestInterceptor(适配成WebRequestHandlerInterceptorAdapter)[加入到adaptedInterceptors中]
 	 */
 	private final List<HandlerInterceptor> adaptedInterceptors = new ArrayList<>();
 
@@ -428,6 +431,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	@Override
 	@Nullable
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		// 抽象方法，由子类实现
 		Object handler = getHandlerInternal(request);
 		if (handler == null) {
 			handler = getDefaultHandler();
@@ -440,7 +444,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 			String handlerName = (String) handler;
 			handler = obtainApplicationContext().getBean(handlerName);
 		}
-
+		// 先获取HandlerMethod, 然后通过getHandlerExecutionChain方法构造HandlerExecutionChain
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 
 		if (logger.isTraceEnabled()) {
@@ -505,6 +509,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 
 		String lookupPath = this.urlPathHelper.getLookupPathForRequest(request);
 		for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
+			// 如果当前是MappedInterceptor，则需要判断当前请求路径是否匹配拦截器的路径，若匹配则加入
 			if (interceptor instanceof MappedInterceptor) {
 				MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;
 				if (mappedInterceptor.matches(lookupPath, this.pathMatcher)) {
@@ -512,6 +517,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 				}
 			}
 			else {
+				// 給HandlerExecutionChain添加拦截器集合， 这个adaptedInterceptors是AbstractHandlerMapping的一个属性集合
 				chain.addInterceptor(interceptor);
 			}
 		}

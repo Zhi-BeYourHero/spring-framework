@@ -27,6 +27,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
+ * 一个包括includePatterns和excludePatterns字符串集合并带有HandlerInterceptor的类。 很明显，就是对于某些地址做特殊包括和排除的拦截器。
  * Contains and delegates calls to a {@link HandlerInterceptor} along with
  * include (and optionally exclude) path patterns to which the interceptor should apply.
  * Also provides matching logic to test if the interceptor applies to a given request path.
@@ -37,6 +38,23 @@ import org.springframework.web.servlet.ModelAndView;
  * {@code AbstractHandlerMethodMapping} (including ancestor ApplicationContext's) which
  * effectively means the interceptor is registered "globally" with all handler mappings.
  *
+ * demo: 拦截器的配置
+ * 1. *.dispatcher.xml配置文件中添加<mvc:interceptors>配置
+ * <mvc:interceptors>
+ *   <mvc:interceptor>
+ *     <mvc:mapping path="/**"/>
+ *     <mvc:exclude-mapping path="/login"/> 　　
+ *     <mvc:exclude-mapping path="/index"/>
+ *     <bean class="package.interceptor.XXInterceptor"/>
+ *   </mvc:interceptor>
+ * </mvc:interceptors>
+ * 这里配置的每个<mvc:interceptor>都会被解析成MappedInterceptor。
+ * 其中子标签
+ * <mvc:mapping path="/**"/>会被解析成MappedInterceptor的includePatterns属性；
+ * <mvc:exclude-mapping path="/**"/>会被解析成MappedInterceptor的excludePatterns属性；
+ * <bean/>会被解析成MappedInterceptor的interceptor属性。
+ *
+ * <mvc:interceptors>这个标签是被InterceptorsBeanDefinitionParser类解析。
  * @author Keith Donald
  * @author Rossen Stoyanchev
  * @author Brian Clozel

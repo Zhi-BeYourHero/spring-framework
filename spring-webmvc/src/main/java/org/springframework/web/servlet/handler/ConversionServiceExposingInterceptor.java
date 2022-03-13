@@ -26,6 +26,10 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.util.Assert;
 
 /**
+ * 默认的<annotation-driven/>标签初始化的时候会初始化ConversionServiceExposingInterceptor这个拦截器，
+ * 并被当做构造方法的参数来构造MappedInterceptor。
+ * 之后会被加入到AbstractHandlerMapping的mappedInterceptors集合中。
+ * 该拦截器会在每个请求之前往request中丢入ConversionService。主要用于spring:eval标签的使用。
  * Interceptor that places the configured {@link ConversionService} in request scope
  * so it's available during request processing. The request attribute name is
  * "org.springframework.core.convert.ConversionService", the value of
