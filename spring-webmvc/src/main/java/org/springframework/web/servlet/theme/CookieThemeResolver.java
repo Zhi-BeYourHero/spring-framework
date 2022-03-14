@@ -113,6 +113,9 @@ public class CookieThemeResolver extends CookieGenerator implements ThemeResolve
 		return themeName;
 	}
 
+	/**
+	 * 将 themeName 保存到Cookie中
+	 */
 	@Override
 	public void setThemeName(
 			HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable String themeName) {

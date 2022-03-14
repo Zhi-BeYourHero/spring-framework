@@ -57,6 +57,9 @@ public class SessionThemeResolver extends AbstractThemeResolver {
 		return (themeName != null ? themeName : getDefaultThemeName());
 	}
 
+	/**
+	 * 将themeName保存到session中
+	 */
 	@Override
 	public void setThemeName(
 			HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable String themeName) {
