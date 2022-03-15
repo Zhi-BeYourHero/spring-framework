@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 
 /**
+ * 实现 MultipartResolver 接口，使用 Servlet 3.0 标准的上传 API 的 MultipartResolver 实现类。
  * Standard implementation of the {@link MultipartResolver} interface,
  * based on the Servlet 3.0 {@link javax.servlet.http.Part} API.
  * To be added as "multipartResolver" bean to a Spring DispatcherServlet context,
@@ -60,6 +61,9 @@ import org.springframework.web.multipart.MultipartResolver;
  */
 public class StandardServletMultipartResolver implements MultipartResolver {
 
+	/**
+	 * 是否延迟解析
+	 */
 	private boolean resolveLazily = false;
 
 
@@ -94,6 +98,7 @@ public class StandardServletMultipartResolver implements MultipartResolver {
 			// To be on the safe side: explicitly delete the parts,
 			// but only actual file parts (for Resin compatibility)
 			try {
+				// 删除临时的 Part 们
 				for (Part part : request.getParts()) {
 					if (request.getFile(part.getName()) != null) {
 						part.delete();
